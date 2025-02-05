@@ -1,24 +1,14 @@
 import "./config/configuration.js";
 import connectDB from "./config/DB.config.js";
-import app from "./app.js";
-import { createServer } from "http";
-import { Server } from "socket.io";
 import path from "path";
 import { fileURLToPath } from "url";
 import express from "express";
+import { server } from "./socket.js";
+import app from "./app.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, "../public")));
-
-const server = createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: process.env.CLIENT_APP_URL,
-    credentials: true,
-    optionsSuccessStatus: 200,
-  },
-});
 
 connectDB()
   .then(() => {
