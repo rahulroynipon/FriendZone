@@ -7,11 +7,10 @@ const SEO = ({
   ogType = "website",
   structuredData,
   noindex = false,
-  lang = "en",
   twitterCard = "summary_large_image",
 }) => {
   const siteName = "FriendZone";
-  const defaultImage = "/favicon.png";
+  const defaultImage = "/favicon.ico";
 
   const metaTitle = title ? `${title} | ${siteName}` : siteName;
   const metaDescription =
@@ -22,8 +21,6 @@ const SEO = ({
 
   return (
     <>
-      <html lang={lang} />
-
       {/* Basic SEO */}
       <title>{metaTitle}</title>
       <meta name="description" content={metaDescription} />

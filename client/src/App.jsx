@@ -16,6 +16,8 @@ import DeskMessageLayout from "./components/layout/DeskMessageLayout";
 import Post from "./pages/Post";
 import Conversation from "./pages/Conversation";
 import Messages from "./pages/Messages";
+import { Login } from "./pages/Authentication/Login";
+import { Signup } from "./pages/Authentication/Signup";
 
 function App() {
   const isMobile = useIsMobile();
@@ -44,6 +46,8 @@ function App() {
           <Route path=":id" element={<Conversation />} />
         </Route>
 
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
