@@ -1,13 +1,13 @@
 import React from "react";
 import { Outlet } from "react-router";
 
-const DeskLayout = () => {
+const DeskMessageLayout = () => {
   return (
     <div>
-      <h1>Desktop Layout</h1>
+      <h1>DeskMessageLayout</h1>
       <Outlet />
     </div>
   );
 };
 
-export default DeskLayout;
+export default DeskMessageLayout;
