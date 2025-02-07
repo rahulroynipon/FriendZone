@@ -11,7 +11,6 @@ const userSchema = new Schema(
       trim: true,
       index: true,
     },
-    googleId: { type: String, default: null },
     fullname: { type: String, required: true, trim: true },
     email: {
       type: String,
@@ -24,6 +23,7 @@ const userSchema = new Schema(
     password: { type: String, default: null },
     avatar: { type: String, default: null },
     coverPhoto: { type: String, default: null },
+    isValid: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
@@ -48,12 +48,6 @@ userSchema.pre("save", async function (next) {
 
 userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
-};
-
-userSchema.methods.generateToken = function () {
-  return jwt.sign({ _id: this._id }, process.env.TOKEN_SECRET, {
-    expiresIn: process.env.TOKEN_EXPIRE,
-  });
 };
 
 export const User = mongoose.model("User", userSchema);

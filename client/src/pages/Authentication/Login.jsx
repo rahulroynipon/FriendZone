@@ -1,21 +1,34 @@
 import React, { useState } from "react";
 import sideImage from "./../../assets/side-img.svg";
 import logo from "./../../assets/logo.png";
-import googleIcon from "./../../assets/google-icon.svg";
 import { LoginSEO } from "../../components/global/All_SEO";
 import { Link } from "react-router";
-import { FiEye } from "react-icons/fi";
-import { FiEyeOff } from "react-icons/fi";
+import { FiEye, FiEyeOff } from "react-icons/fi";
+import GoogleButton from "../../components/authentication/GoogleButton";
+import { ErrorMessage, Field, Form, Formik } from "formik";
+import cn from "./../../lib/utils";
+import { field_clName } from "../../custom/custom.style";
+import { loginSchema as validationSchema } from "../../custom/custom.validation";
 
 export const Login = () => {
   const [isShowPass, setIsShowPass] = useState(false);
+  const initialValues = {
+    email: "",
+    password: "",
+  };
+
+  const handleSubmit = (values, { setSubmitting }) => {
+    console.log("Form Submitted", values);
+    setSubmitting(false);
+  };
+
   return (
     <>
       <LoginSEO />
       <section className="flex items-center justify-center min-h-screen bg-gray-900 px-4 font-roboto">
         <div className="flex flex-col-reverse items-center lg:items-stretch lg:flex-row w-full lg:max-w-3xl 2xl:max-w-4xl shadow-lg rounded-lg overflow-hidden">
           {/* Side Image */}
-          <div className="h-[34rem] 2xl:h-[40rem] hidden lg:block lg:w-1/2">
+          <div className="h-[36rem] 2xl:h-[40rem] hidden lg:block lg:w-1/2">
             <img
               className="h-full w-full object-cover"
               src={sideImage}
@@ -24,7 +37,7 @@ export const Login = () => {
           </div>
 
           {/* Form Container */}
-          <div className="h-[34rem] 2xl:h-[40rem] w-full max-w-sm rounded-lg lg:rounded-none lg:max-w-full lg:w-1/2 p-6 bg-gray-800 flex flex-col justify-center">
+          <div className="h-[36rem] 2xl:h-[40rem] w-full max-w-sm rounded-lg lg:rounded-none lg:max-w-full lg:w-1/2 p-6 bg-gray-800 flex flex-col justify-center">
             {/* Logo */}
             <div className="flex items-center justify-center flex-col gap-3">
               <img className="h-8 w-auto" src={logo} alt="Logo" />
@@ -34,60 +47,96 @@ export const Login = () => {
             </div>
 
             {/* Form */}
-            <form className="mt-6" onSubmit={(e) => e.preventDefault()}>
-              <div>
-                <label
-                  htmlFor="username"
-                  className="block text-sm text-gray-200 font-sans"
-                >
-                  Username
-                </label>
-                <input
-                  type="text"
-                  id="username"
-                  className="block w-full px-4 py-2 mt-2 border border-gray-600 rounded-lg bg-gray-800 text-gray-300 focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
-                />
-              </div>
+            <Formik
+              initialValues={initialValues}
+              validationSchema={validationSchema}
+              onSubmit={handleSubmit}
+            >
+              {({ isSubmitting, errors, touched }) => (
+                <Form className="mt-6">
+                  {/* Email Field */}
+                  <div>
+                    <label
+                      htmlFor="email"
+                      className="block text-sm text-gray-200 font-sans"
+                    >
+                      Email
+                    </label>
+                    <Field
+                      type="email"
+                      name="email"
+                      id="email"
+                      autoComplete="email"
+                      className={cn(
+                        field_clName.primary,
+                        errors.email && touched.email
+                          ? field_clName.error
+                          : field_clName.info
+                      )}
+                    />
+                    <ErrorMessage
+                      name="email"
+                      component="p"
+                      className="text-red-500 text-xs mt-1"
+                    />
+                  </div>
 
-              <div className="mt-4 relative">
-                <div className="flex items-center justify-between">
-                  <label
-                    htmlFor="password"
-                    className="block text-sm text-gray-200 font-sans"
-                  >
-                    Password
-                  </label>
-                  <Link
-                    to="/forgot-password"
-                    className="text-xs text-gray-400 hover:underline"
-                  >
-                    Forgot Password?
-                  </Link>
-                </div>
-                <input
-                  type={isShowPass ? "text" : "password"}
-                  id="password"
-                  className="block pr-9 w-full px-4 py-2 mt-2 border border-gray-600 rounded-lg bg-gray-800 text-gray-300 focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
-                />
+                  {/* Password Field */}
+                  <div className="mt-4 relative">
+                    <div className="flex items-center justify-between">
+                      <label
+                        htmlFor="password"
+                        className="block text-sm text-gray-200 font-sans"
+                      >
+                        Password
+                      </label>
+                      <Link
+                        to="/forgot-password"
+                        className="text-xs text-gray-400 hover:underline"
+                      >
+                        Forgot Password?
+                      </Link>
+                    </div>
+                    <Field
+                      type={isShowPass ? "text" : "password"}
+                      name="password"
+                      id="password"
+                      autoComplete="current-password"
+                      className={cn(
+                        field_clName.primary,
+                        errors.password && touched.password
+                          ? field_clName.error
+                          : field_clName.info
+                      )}
+                    />
+                    <ErrorMessage
+                      name="password"
+                      component="p"
+                      className="text-red-500 text-xs mt-1"
+                    />
 
-                <button
-                  onClick={() => setIsShowPass((prev) => !prev)}
-                  className="absolute text-gray-400 hover:text-gray-300 right-3 top-10 transition-colors duration-300"
-                >
-                  {isShowPass ? <FiEyeOff /> : <FiEye />}
-                </button>
-              </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsShowPass((prev) => !prev)}
+                      className="absolute text-gray-400 hover:text-gray-300 right-3 top-10 transition-colors duration-300"
+                    >
+                      {isShowPass ? <FiEyeOff /> : <FiEye />}
+                    </button>
+                  </div>
 
-              {/* Sign In Button */}
-              <div className="mt-6">
-                <button
-                  type="submit"
-                  className="w-full px-6 py-2.5 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 bg-blue-600 rounded-lg hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50"
-                >
-                  Sign In
-                </button>
-              </div>
-            </form>
+                  {/* Sign In Button */}
+                  <div className="mt-6">
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full px-6 py-2.5 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 bg-blue-600 rounded-lg hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                    >
+                      {isSubmitting ? "Signing In..." : "Sign In"}
+                    </button>
+                  </div>
+                </Form>
+              )}
+            </Formik>
 
             {/* Divider */}
             <div className="flex items-center justify-between mt-6">
@@ -100,13 +149,7 @@ export const Login = () => {
 
             {/* Social Media Login */}
             <div className="mt-6">
-              <button
-                type="button"
-                className="flex items-center justify-center w-full px-6 py-2 text-sm font-medium text-white transition-colors duration-300 border border-gray-600 rounded-lg hover:bg-gray-600 focus:border-blue-400 focus:ring focus:ring-blue-300 focus:ring-opacity-50 focus:outline-none"
-              >
-                <img src={googleIcon} alt="goole-icon" />
-                <span className="ml-2">Sign in with Google</span>
-              </button>
+              <GoogleButton type="login" />
             </div>
 
             {/* Signup Link */}

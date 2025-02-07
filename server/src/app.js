@@ -2,6 +2,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import ApiError from "./utils/ApiError.js";
+import passport from "./config/passport.config.js";
 
 const app = express();
 
@@ -16,6 +17,12 @@ app.use(
 app.use(express.json({ limit: process.env.LIMIT }));
 app.use(express.urlencoded({ extended: true, limit: process.env.LIMIT }));
 app.use(cookieParser());
+app.use(passport.initialize());
+
+//all the routes are here
+import authRoute from "./routes/auth.route.js";
+
+app.use("/api/v1/auth", authRoute);
 
 app.use((err, req, res, next) => {
   if (err instanceof ApiError) {

@@ -1,33 +1,39 @@
 import React from "react";
 import sideImage from "./../../assets/side-img.svg";
-import logo from "./../../assets/logo.png";
-import googleIcon from "./../../assets/google-icon.svg";
 import { SignupSEO } from "../../components/global/All_SEO";
 import { Link } from "react-router";
+import GoogleButton from "../../components/authentication/GoogleButton";
+import { ErrorMessage, Field, Form, Formik } from "formik";
+import cn from "./../../lib/utils";
+import { field_clName } from "../../custom/custom.style";
+import { signupSchema as validationSchema } from "../../custom/custom.validation";
 
 export const Signup = () => {
+  const initialValues = {
+    fullname: "",
+    email: "",
+    password: "",
+  };
+
+  const handleSubmit = (values, { setSubmitting }) => {
+    console.log("Form Submitted", values);
+    setSubmitting(false);
+  };
   return (
     <>
       <SignupSEO />
       <section className="flex items-center justify-center min-h-screen bg-gray-900 px-4 font-roboto">
         <div className="flex flex-col-reverse items-center lg:items-stretch lg:flex-row w-full lg:max-w-3xl 2xl:max-w-4xl shadow-lg rounded-lg overflow-hidden">
           {/* Form Container */}
-          <div className="h-[36rem] 2xl:h-[40rem] w-full max-w-sm rounded-lg lg:rounded-none lg:max-w-full lg:w-1/2 p-6 bg-gray-800 flex flex-col justify-center">
+          <div className="h-[38rem] 2xl:h-[40rem] w-full max-w-sm rounded-lg lg:rounded-none lg:max-w-full lg:w-1/2 p-6 bg-gray-800 flex flex-col justify-center">
             {/* Logo */}
             <div className="flex items-center justify-center flex-col gap-3">
-              {/* <img className="h-8 w-auto" src={logo} alt="Logo" /> */}
               <h4 className="text-gray-300 text-2xl font-poppins">Sign Up</h4>
             </div>
 
             {/* Social Media Login */}
             <div className="mt-6">
-              <button
-                type="button"
-                className="flex items-center justify-center w-full px-6 py-2 text-sm font-medium text-white transition-colors duration-300 border border-gray-600 rounded-lg hover:bg-gray-600 focus:border-blue-400 focus:ring focus:ring-blue-300 focus:ring-opacity-50 focus:outline-none"
-              >
-                <img src={googleIcon} alt="goole-icon" />
-                <span className="ml-2">Sign up with Google</span>
-              </button>
+              <GoogleButton type="signup" />
             </div>
 
             {/* Divider */}
@@ -40,60 +46,106 @@ export const Signup = () => {
             </div>
 
             {/* Form */}
-            <form className="mt-6" onSubmit={(e) => e.preventDefault()}>
-              <div>
-                <label
-                  htmlFor="fullname"
-                  className="block text-sm text-gray-200 font-sans"
-                >
-                  Fullname
-                </label>
-                <input
-                  type="text"
-                  id="fullname"
-                  className="block w-full px-4 py-2 mt-2 border border-gray-600 rounded-lg bg-gray-800 text-gray-300 focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
-                />
-              </div>
-              <div className="mt-4">
-                <label
-                  htmlFor="email"
-                  className="block text-sm text-gray-200 font-sans"
-                >
-                  Email
-                </label>
+            <Formik
+              initialValues={initialValues}
+              validationSchema={validationSchema}
+              onSubmit={handleSubmit}
+            >
+              {({ isSubmitting, errors, touched }) => (
+                <Form className="mt-6">
+                  {/* Fullname Field */}
+                  <div>
+                    <label
+                      htmlFor="fullname"
+                      className="block text-sm text-gray-200 font-sans"
+                    >
+                      Fullname
+                    </label>
+                    <Field
+                      type="text"
+                      name="fullname"
+                      id="fullname"
+                      className={cn(
+                        field_clName.primary,
+                        errors.fullname && touched.fullname
+                          ? field_clName.error
+                          : field_clName.info
+                      )}
+                    />
+                    <ErrorMessage
+                      name="fullname"
+                      component="p"
+                      className="text-red-500 text-xs mt-1"
+                    />
+                  </div>
+                  {/* Email Field */}
+                  <div className="mt-4">
+                    <label
+                      htmlFor="email"
+                      className="block text-sm text-gray-200 font-sans"
+                    >
+                      Email
+                    </label>
+                    <Field
+                      type="email"
+                      name="email"
+                      id="email"
+                      autoComplete="email"
+                      className={cn(
+                        field_clName.primary,
+                        errors.email && touched.email
+                          ? field_clName.error
+                          : field_clName.info
+                      )}
+                    />
+                    <ErrorMessage
+                      name="email"
+                      component="p"
+                      className="text-red-500 text-xs mt-1"
+                    />
+                  </div>
 
-                <input
-                  type="email"
-                  id="email"
-                  className="block w-full px-4 py-2 mt-2 border border-gray-600 rounded-lg bg-gray-800 text-gray-300 focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
-                />
-              </div>
+                  {/* Password Field */}
+                  <div className="mt-4 relative">
+                    <label
+                      htmlFor="password"
+                      className="block text-sm text-gray-200 font-sans"
+                    >
+                      Password
+                    </label>
 
-              <div className="mt-4">
-                <label
-                  htmlFor="password"
-                  className="block text-sm text-gray-200 font-sans"
-                >
-                  Password
-                </label>
+                    <Field
+                      type="text"
+                      name="password"
+                      id="password"
+                      autoComplete="new-password"
+                      className={cn(
+                        field_clName.primary,
+                        errors.password && touched.password
+                          ? field_clName.error
+                          : field_clName.info
+                      )}
+                    />
+                    <ErrorMessage
+                      name="password"
+                      component="p"
+                      className="text-red-500 text-xs mt-1"
+                    />
+                  </div>
 
-                <input
-                  type="text"
-                  id="password"
-                  className="block w-full px-4 py-2 mt-2 border border-gray-600 rounded-lg bg-gray-800 text-gray-300 focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
-                />
-              </div>
-
-              {/* Sign In Button */}
-              <div className="mt-6">
-                <button
-                  type="submit"
-                  className="w-full px-6 py-2.5 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 bg-blue-600 rounded-lg hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50"
-                >
-                  Sign Up
-                </button>
-              </div>
-            </form>
+                  {/* Sign In Button */}
+                  <div className="mt-6">
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full px-6 py-2.5 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 bg-blue-600 rounded-lg hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                    >
+                      {isSubmitting ? "Signing Up..." : "Sign Up"}
+                    </button>
+                  </div>
+                </Form>
+              )}
+            </Formik>
 
             {/* Signup Link */}
             <p className="mt-8 text-xs font-light text-center text-gray-400">
@@ -108,7 +160,7 @@ export const Signup = () => {
           </div>
 
           {/* Side Image */}
-          <div className="h-[36rem] 2xl:h-[40rem] hidden lg:block lg:w-1/2">
+          <div className="h-[38rem] 2xl:h-[40rem] hidden lg:block lg:w-1/2">
             <img
               className="h-full w-full object-cover"
               src={sideImage}

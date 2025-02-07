@@ -1,7 +1,7 @@
 import React from "react";
 import SEO from "./SEO";
 
-const baseURL = import.meta.env.VITE_CLIENT_APP_URL;
+const baseURL = import.meta.env.VITE_APP_CLIENT_URL;
 
 // Not Found Page SEO
 export const NotFoundSEO = React.memo(() => {
