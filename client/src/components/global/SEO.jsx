@@ -10,7 +10,7 @@ const SEO = ({
   twitterCard = "summary_large_image",
 }) => {
   const siteName = "FriendZone";
-  const defaultImage = "/favicon.ico";
+  const defaultImage = "/favicon.svg";
 
   const metaTitle = title ? `${title} | ${siteName}` : siteName;
   const metaDescription =

@@ -25,6 +25,9 @@ passport.use(
             isValid: true,
           });
 
+          // @ts-ignore
+          // req.user = user;
+
           await user.save();
           return done(null, user, { message: "User created successfully" });
         }

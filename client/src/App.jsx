@@ -18,6 +18,7 @@ import Conversation from "./pages/Conversation";
 import Messages from "./pages/Messages";
 import { Login } from "./pages/Authentication/Login";
 import { Signup } from "./pages/Authentication/Signup";
+import { VerifyEmail } from "./pages/Authentication/VerifyEmail";
 
 function App() {
   const isMobile = useIsMobile();
@@ -47,7 +48,8 @@ function App() {
         </Route>
 
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/register" element={<Signup />} />
+        <Route path="/email-verification" element={<VerifyEmail />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

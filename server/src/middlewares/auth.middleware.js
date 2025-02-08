@@ -13,7 +13,10 @@ const verifyToken = asyncHandler(async (req, res, next) => {
 
   try {
     const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
-    const user = await User.findById(decodedToken._id);
+    const user = await User.findOne({
+      _id: decodedToken._id,
+      isValid: true,
+    }).select("-password");
 
     if (!user) {
       throw new ApiError(401, "Invalid token.");
@@ -26,7 +29,5 @@ const verifyToken = asyncHandler(async (req, res, next) => {
     throw new ApiError(401, "Invalid or expired token.");
   }
 });
-
-
 
 export { verifyToken };

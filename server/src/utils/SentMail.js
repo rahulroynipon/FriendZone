@@ -12,7 +12,7 @@ const SentMail = asyncHandler(async (email, subject, text, html) => {
   });
 
   const mailOptions = {
-    from: `"TrafficVai" <${process.env.EMAIL}>`,
+    from: `"FriendZone" <${process.env.EMAIL}>`,
     to: email,
     subject: subject || "Mantainance",
     text: text || undefined,

@@ -1,9 +1,17 @@
 import passport from "./../config/passport.config.js";
 import { Router } from "express";
 import {
+  getAuthHandler,
   googleFailureHandler,
   googleLoginAndSignupHandler,
+  loginHandler,
+  passwordValidation,
+  resendValidation,
+  resetPasswordHandler,
+  signupHandler,
+  userValidation,
 } from "../controllers/auth.controller.js";
+import { verifyToken } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
@@ -17,7 +25,6 @@ const callbackConfig = {
   failureRedirect: "/api/v1/auth/google/failure",
 };
 
-
 router.get("/google", passport.authenticate("google", googleConfig));
 router.get(
   "/google/callback",
@@ -26,5 +33,12 @@ router.get(
 );
 
 router.get("/google/failure", googleFailureHandler);
+router.post("/login", loginHandler);
+router.post("/register", signupHandler);
+router.post("/validate", userValidation);
+router.post("/reset-passsword-link", passwordValidation);
+router.post("/resend-otp/:type", resendValidation);
+router.post("/reset-password", resetPasswordHandler);
+router.get("/me", verifyToken, getAuthHandler);
 
 export default router;

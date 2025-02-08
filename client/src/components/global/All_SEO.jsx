@@ -73,13 +73,39 @@ export const SignupSEO = React.memo(() => {
         "social network",
         "create account",
       ]}
-      canonicalUrl={`${baseURL}/signup`}
+      canonicalUrl={`${baseURL}/register`}
       structuredData={{
         "@type": "WebPage",
         name: "Sign Up - FriendZone",
         description:
           "Create your FriendZone account and start socializing today.",
-        url: `${baseURL}/signup`,
+        url: `${baseURL}/register`,
+      }}
+    />
+  );
+});
+
+// Email Verify SEO
+export const EmailVerificationSEO = React.memo(() => {
+  return (
+    <SEO
+      title="Verify Your Email"
+      description="Verify your email to complete the signup process and start connecting on FriendZone."
+      keywords={[
+        "email verification",
+        "verify account",
+        "FriendZone",
+        "account activation",
+        "confirm email",
+      ]}
+      canonicalUrl={`${baseURL}/email-verification`}
+      structuredData={{
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: "Email Verification - FriendZone",
+        description:
+          "Complete your FriendZone signup by verifying your email. Click the link sent to your inbox.",
+        url: `${baseURL}/email-verification`,
       }}
     />
   );

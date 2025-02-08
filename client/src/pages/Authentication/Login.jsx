@@ -1,31 +1,35 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import sideImage from "./../../assets/side-img.svg";
-import logo from "./../../assets/logo.png";
+import logo from "./../../assets/logo.svg";
 import { LoginSEO } from "../../components/global/All_SEO";
 import { Link } from "react-router";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import GoogleButton from "../../components/authentication/GoogleButton";
-import { ErrorMessage, Field, Form, Formik } from "formik";
+import { Field, Form, Formik } from "formik";
 import cn from "./../../lib/utils";
 import { field_clName } from "../../custom/custom.style";
 import { loginSchema as validationSchema } from "../../custom/custom.validation";
+import useAuthStore from "../../store/auth.store";
+import { FieldEorrorMessage } from "../../components/authentication/FieldEorrorMessage";
 
 export const Login = () => {
+  const { isLoading, isError, loginHandler, message } = useAuthStore();
   const [isShowPass, setIsShowPass] = useState(false);
+
   const initialValues = {
     email: "",
     password: "",
   };
 
-  const handleSubmit = (values, { setSubmitting }) => {
-    console.log("Form Submitted", values);
+  const handleSubmit = async (values, { setSubmitting }) => {
+    await loginHandler(values);
     setSubmitting(false);
   };
 
   return (
     <>
       <LoginSEO />
-      <section className="flex items-center justify-center min-h-screen bg-gray-900 px-4 font-roboto">
+      <section className="flex items-center justify-center min-h-screen bg-gray-900 px-4 font-poppins">
         <div className="flex flex-col-reverse items-center lg:items-stretch lg:flex-row w-full lg:max-w-3xl 2xl:max-w-4xl shadow-lg rounded-lg overflow-hidden">
           {/* Side Image */}
           <div className="h-[36rem] 2xl:h-[40rem] hidden lg:block lg:w-1/2">
@@ -37,10 +41,10 @@ export const Login = () => {
           </div>
 
           {/* Form Container */}
-          <div className="h-[36rem] 2xl:h-[40rem] w-full max-w-sm rounded-lg lg:rounded-none lg:max-w-full lg:w-1/2 p-6 bg-gray-800 flex flex-col justify-center">
+          <div className="h-[36rem] 2xl:h-[40rem] w-[29rem] md:w-full max-w-sm rounded-lg lg:rounded-none lg:max-w-full lg:w-1/2 p-6 bg-gray-800 flex flex-col justify-center">
             {/* Logo */}
             <div className="flex items-center justify-center flex-col gap-3">
-              <img className="h-8 w-auto" src={logo} alt="Logo" />
+              <img className="h-11 w-auto" src={logo} alt="Logo" />
               <h4 className="text-gray-300 text-2xl font-poppins">
                 Welcome back!
               </h4>
@@ -58,7 +62,7 @@ export const Login = () => {
                   <div>
                     <label
                       htmlFor="email"
-                      className="block text-sm text-gray-200 font-sans"
+                      className="block text-sm text-gray-200"
                     >
                       Email
                     </label>
@@ -74,11 +78,7 @@ export const Login = () => {
                           : field_clName.info
                       )}
                     />
-                    <ErrorMessage
-                      name="email"
-                      component="p"
-                      className="text-red-500 text-xs mt-1"
-                    />
+                    <FieldEorrorMessage name="email" />
                   </div>
 
                   {/* Password Field */}
@@ -86,7 +86,7 @@ export const Login = () => {
                     <div className="flex items-center justify-between">
                       <label
                         htmlFor="password"
-                        className="block text-sm text-gray-200 font-sans"
+                        className="block text-sm text-gray-200"
                       >
                         Password
                       </label>
@@ -109,11 +109,7 @@ export const Login = () => {
                           : field_clName.info
                       )}
                     />
-                    <ErrorMessage
-                      name="password"
-                      component="p"
-                      className="text-red-500 text-xs mt-1"
-                    />
+                    <FieldEorrorMessage name="password" />
 
                     <button
                       type="button"
@@ -128,10 +124,12 @@ export const Login = () => {
                   <div className="mt-6">
                     <button
                       type="submit"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || isLoading.login}
                       className="w-full px-6 py-2.5 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 bg-blue-600 rounded-lg hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50"
                     >
-                      {isSubmitting ? "Signing In..." : "Sign In"}
+                      {isSubmitting || isLoading.login
+                        ? "Signing In..."
+                        : "Sign In"}
                     </button>
                   </div>
                 </Form>
@@ -156,7 +154,7 @@ export const Login = () => {
             <p className="mt-8 text-xs font-light text-center text-gray-400">
               Don't have an account?{" "}
               <Link
-                to="/signup"
+                to="/register"
                 className="font-medium text-gray-200 hover:underline"
               >
                 Create One
