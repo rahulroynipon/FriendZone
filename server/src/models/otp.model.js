@@ -2,11 +2,6 @@ import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 
 const otpSchema = new Schema({
-  type: {
-    type: String,
-    required: true,
-    enum: ["email-verification", "reset-password"],
-  },
   userId: {
     type: Schema.Types.ObjectId,
     ref: "User",

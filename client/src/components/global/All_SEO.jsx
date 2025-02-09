@@ -110,3 +110,54 @@ export const EmailVerificationSEO = React.memo(() => {
     />
   );
 });
+
+// Reset Password SENDER LINK
+export const ForgotPasswordSentSEO = React.memo(() => {
+  return (
+    <SEO
+      title="Password Reset Link Sent - Check Your Email"
+      description="We've sent a password reset link to your email. Please check your inbox (and spam folder) for instructions on how to reset your FriendZone account password."
+      keywords={[
+        "password reset email",
+        "reset link sent",
+        "FriendZone password recovery",
+        "forgot password email",
+        "account recovery",
+      ]}
+      canonicalUrl={`${baseURL}/forgot-password`}
+      structuredData={{
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: "Password Reset Email Sent - FriendZone",
+        description:
+          "A password reset link has been sent to your email. Follow the instructions to securely reset your FriendZone account password.",
+        url: `${baseURL}/forgot-password`,
+      }}
+    />
+  );
+});
+
+// Reset Password SEO
+export const ResetPasswordSEO = React.memo(() => {
+  return (
+    <SEO
+      title="Reset Your Password"
+      description="Securely reset your password and regain access to your FriendZone account."
+      keywords={[
+        "reset password",
+        "forgot password",
+        "change password",
+        "FriendZone",
+      ]}
+      canonicalUrl={`${baseURL}/reset-password`}
+      structuredData={{
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: "Reset Password - FriendZone",
+        description:
+          "Securely reset your password and regain access to your FriendZone account.",
+        url: `${baseURL}/reset-password`,
+      }}
+    />
+  );
+});

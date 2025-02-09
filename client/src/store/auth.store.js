@@ -1,12 +1,15 @@
 import { create } from "zustand";
 import axiosInstance from "../lib/axiosInstance";
 import updateState from "../lib/updateState";
+import ShowToast from "../components/global/ShowToast";
 
 const initialState = {
   auth: false,
   login: false,
   register: false,
   validation: false,
+  forgot: false,
+  reset: false,
   resend: false,
 };
 
@@ -94,6 +97,7 @@ const useAuthStore = create((set) => ({
         error: true,
         message: errorInfo,
       });
+      ShowToast("error", errorInfo);
     }
   },
 
@@ -108,6 +112,7 @@ const useAuthStore = create((set) => ({
   logout: () => {
     updateState(set, "auth", { update: { isAuth: false, user: null } });
     localStorage.removeItem("token");
+    ShowToast("success", "Logout successful.");
   },
 
   // Handle user registration
@@ -121,34 +126,39 @@ const useAuthStore = create((set) => ({
 
     try {
       const response = await axiosInstance.post("/auth/register", userData);
-      const { otpToken } = response.data?.data;
 
-      if (otpToken) {
+      if (response.data) {
+        console.log(response.data);
+        const otpToken = response.data?.data;
         localStorage.setItem("registerToken", JSON.stringify(otpToken));
+        const message = response.data?.message;
         updateState(set, "register", {
           loading: false,
           error: false,
           success: true,
-          message: response.data?.message,
+          message: message,
         });
+
+        ShowToast("success", message);
       }
     } catch (error) {
       const errorInfo =
         error?.response?.data?.message ||
         "Registration failed. Please try again.";
-      updateState(set, "register", {
+      updateState(set, "validation", {
         loading: false,
         success: false,
         error: true,
         message: errorInfo,
       });
+      ShowToast("error", errorInfo);
     }
   },
 
   // Validate the user (email verification)
   userValidation: async (otp) => {
     const registerToken = JSON.parse(localStorage.getItem("registerToken"));
-    if (!registerToken || registerToken.type !== "email-verification") return;
+    if (!registerToken) return;
 
     updateState(set, "validation", {
       loading: true,
@@ -165,12 +175,15 @@ const useAuthStore = create((set) => ({
 
       if (response.data) {
         localStorage.removeItem("registerToken");
+        const message = response.data?.message;
         updateState(set, "validation", {
           loading: false,
           error: false,
           success: true,
-          message: response.data?.message,
+          message: message,
         });
+
+        ShowToast("success", message);
       }
     } catch (error) {
       const errorInfo =
@@ -182,50 +195,54 @@ const useAuthStore = create((set) => ({
         error: true,
         message: errorInfo,
       });
+
+      ShowToast("error", errorInfo);
     }
   },
 
   // Sent password reset email link
-  forgotPasswordLinkHandler: async (email = "rahulroynipon@gmail.com") => {
+  forgotPasswordLinkHandler: async (values) => {
     try {
-      updateState(set, "validation", {
+      updateState(set, "forgot", {
         loading: true,
         error: false,
         success: false,
         message: "",
       });
 
-      const response = await axiosInstance.post("/auth/reset-passsword-link", {
-        email,
-      });
-
-      console.log(response.data);
+      const response = await axiosInstance.post(
+        "/auth/reset-passsword-link",
+        values
+      );
 
       if (response.data) {
-        updateState(set, "validation", {
+        const message = response.data?.message;
+        updateState(set, "forgot", {
           loading: false,
           error: false,
           success: true,
-          message: response.data?.message,
+          message: message,
         });
+        ShowToast("success", message);
       }
     } catch (error) {
       const errorInfo =
         error?.response?.data?.message ||
         "Password reset link failed. Please try again.";
-      updateState(set, "validation", {
+      updateState(set, "forgot", {
         loading: false,
         success: false,
         error: true,
         message: errorInfo,
       });
+      ShowToast("error", errorInfo);
     }
   },
 
   // Resend OTP based on registration type
-  resendOtpHandler: async (resend_type) => {
+  resendOtpHandler: async () => {
     const registerToken = JSON.parse(localStorage.getItem("registerToken"));
-    if (!registerToken || registerToken.type !== resend_type) return;
+    if (!registerToken) return;
 
     updateState(set, "resend", {
       loading: true,
@@ -235,12 +252,14 @@ const useAuthStore = create((set) => ({
     });
 
     try {
-      const response = await axiosInstance.post(
-        `/auth/resend-otp/${resend_type}`,
-        { registerToken }
-      );
+      const response = await axiosInstance.post(`/auth/resend-otp`, {
+        registerToken,
+      });
 
       if (response.data) {
+        const newToken = response.data?.data;
+        localStorage.setItem("registerToken", JSON.stringify(newToken));
+
         updateState(set, "resend", {
           loading: false,
           error: false,
@@ -263,7 +282,7 @@ const useAuthStore = create((set) => ({
 
   // Handle user password reset
   resetPasswordHandler: async (password, token) => {
-    updateState(set, "validation", {
+    updateState(set, "reset", {
       loading: true,
       error: false,
       success: false,
@@ -277,23 +296,27 @@ const useAuthStore = create((set) => ({
       });
 
       if (response.data) {
-        updateState(set, "validation", {
+        const message = response.data?.message;
+        updateState(set, "reset", {
           loading: false,
           error: false,
           success: true,
-          message: response.data?.message,
+          message: message,
         });
+
+        ShowToast("success", message);
       }
     } catch (error) {
       const errorInfo =
         error?.response?.data?.message ||
         "Password reset failed. Please try again.";
-      updateState(set, "validation", {
+      updateState(set, "reset", {
         loading: false,
         success: false,
         error: true,
         message: errorInfo,
       });
+      ShowToast("error", errorInfo);
     }
   },
 }));

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router";
 import DeskLayout from "./components/layout/DeskLayout";
 import { useIsMobile } from "./hook/useIsMobile";
@@ -19,40 +19,89 @@ import Messages from "./pages/Messages";
 import { Login } from "./pages/Authentication/Login";
 import { Signup } from "./pages/Authentication/Signup";
 import { VerifyEmail } from "./pages/Authentication/VerifyEmail";
+import { ForgotPassword } from "./pages/Authentication/ForgotPassword";
+import { Toaster } from "sonner";
+import { ResetPassword } from "./pages/Authentication/ResetPassword";
+import {
+  PublicRoute,
+  VerificationRoute,
+  PrivateRoute,
+} from "./components/authentication/RouteVerification";
+import GetAuth from "./components/authentication/GetAuth";
+import AppLoading from "./components/global/AppLoading";
+import useAuthStore from "./store/auth.store";
 
 function App() {
   const isMobile = useIsMobile();
+  const { isLoading } = useAuthStore();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={isMobile ? <MobileLayout /> : <DeskLayout />}>
-          <Route index element={<Home />} />
-          <Route path="post/:id" element={<Post />} />
-          <Route path="notification" element={<Notification />} />
-          <Route path="search" element={<Search />} />
+    <>
+      <Toaster position="top-right" />
+      <GetAuth />
+      {loading || isLoading.auth ? (
+        <AppLoading />
+      ) : (
+        <BrowserRouter>
+          <Routes>
+            {/* Private Route start */}
+            <Route element={<PrivateRoute />}>
+              <Route
+                path="/"
+                element={isMobile ? <MobileLayout /> : <DeskLayout />}
+              >
+                <Route index element={<Home />} />
+                <Route path="post/:id" element={<Post />} />
+                <Route path="notification" element={<Notification />} />
+                <Route path="search" element={<Search />} />
 
-          <Route path="profile/:id" element={<ProfileLayout />}>
-            <Route index element={<ProfilePost />} />
-            <Route path="friend-list" element={<ProfileFriend />} />
-            <Route path="saved" element={<ProfileSave />} />
-          </Route>
-        </Route>
+                <Route path="profile/:id" element={<ProfileLayout />}>
+                  <Route index element={<ProfilePost />} />
+                  <Route path="friend-list" element={<ProfileFriend />} />
+                  <Route path="saved" element={<ProfileSave />} />
+                </Route>
+              </Route>
+            </Route>
+            {/* Private Route end */}
 
-        <Route
-          path="/messages"
-          element={isMobile ? <MobileMessageLayout /> : <DeskMessageLayout />}
-        >
-          <Route index element={<Messages />} />
-          <Route path=":id" element={<Conversation />} />
-        </Route>
+            {/* Public Route start */}
+            <Route
+              path="/messages"
+              element={
+                isMobile ? <MobileMessageLayout /> : <DeskMessageLayout />
+              }
+            >
+              <Route index element={<Messages />} />
+              <Route path=":id" element={<Conversation />} />
+            </Route>
 
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Signup />} />
-        <Route path="/email-verification" element={<VerifyEmail />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </BrowserRouter>
+            <Route element={<PublicRoute />}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Signup />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+            </Route>
+            {/* Public Route end */}
+
+            {/* Verification Route start */}
+            <Route element={<VerificationRoute />}>
+              <Route path="/email-verification" element={<VerifyEmail />} />
+            </Route>
+            {/* Verification Route end */}
+
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      )}
+    </>
   );
 }
 

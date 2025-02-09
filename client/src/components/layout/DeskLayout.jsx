@@ -3,10 +3,9 @@ import { Outlet } from "react-router";
 
 const DeskLayout = () => {
   return (
-    <div>
-      <h1>Desktop Layout</h1>
+    <>
       <Outlet />
-    </div>
+    </>
   );
 };
 

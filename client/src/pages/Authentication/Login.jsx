@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import sideImage from "./../../assets/side-img.svg";
 import logo from "./../../assets/logo.svg";
 import { LoginSEO } from "../../components/global/All_SEO";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import GoogleButton from "../../components/authentication/GoogleButton";
 import { Field, Form, Formik } from "formik";
@@ -10,10 +10,13 @@ import cn from "./../../lib/utils";
 import { field_clName } from "../../custom/custom.style";
 import { loginSchema as validationSchema } from "../../custom/custom.validation";
 import useAuthStore from "../../store/auth.store";
-import { FieldEorrorMessage } from "../../components/authentication/FieldEorrorMessage";
+import { FieldEorrorMessage } from "../../components/global/FieldEorrorMessage";
+import { SubmitButton } from "./../../components/global/SubmitButton";
 
 export const Login = () => {
-  const { isLoading, isError, loginHandler, message } = useAuthStore();
+  const navigate = useNavigate();
+  const { isLoading, isSuccess, isError, loginHandler, message } =
+    useAuthStore();
   const [isShowPass, setIsShowPass] = useState(false);
 
   const initialValues = {
@@ -21,7 +24,7 @@ export const Login = () => {
     password: "",
   };
 
-  const handleSubmit = async (values, { setSubmitting }) => {
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     await loginHandler(values);
     setSubmitting(false);
   };
@@ -41,7 +44,7 @@ export const Login = () => {
           </div>
 
           {/* Form Container */}
-          <div className="h-[36rem] 2xl:h-[40rem] w-[29rem] md:w-full max-w-sm rounded-lg lg:rounded-none lg:max-w-full lg:w-1/2 p-6 bg-gray-800 flex flex-col justify-center">
+          <div className="h-[36rem] 2xl:h-[40rem] w-[29rem] md:w-full max-w-sm rounded-lg lg:rounded-none lg:max-w-full lg:w-1/2 p-8 md:p-6 bg-gray-800 flex flex-col justify-center">
             {/* Logo */}
             <div className="flex items-center justify-center flex-col gap-3">
               <img className="h-11 w-auto" src={logo} alt="Logo" />
@@ -56,84 +59,89 @@ export const Login = () => {
               validationSchema={validationSchema}
               onSubmit={handleSubmit}
             >
-              {({ isSubmitting, errors, touched }) => (
-                <Form className="mt-6">
-                  {/* Email Field */}
-                  <div>
-                    <label
-                      htmlFor="email"
-                      className="block text-sm text-gray-200"
-                    >
-                      Email
-                    </label>
-                    <Field
-                      type="email"
-                      name="email"
-                      id="email"
-                      autoComplete="email"
-                      className={cn(
-                        field_clName.primary,
-                        errors.email && touched.email
-                          ? field_clName.error
-                          : field_clName.info
-                      )}
-                    />
-                    <FieldEorrorMessage name="email" />
-                  </div>
+              {({ isSubmitting, errors, touched, resetForm }) => {
+                useEffect(() => {
+                  if (isSuccess.login && !isError.login) {
+                    resetForm();
+                    navigate("/");
+                  }
+                }, [isSuccess.login, isError.login, resetForm]);
 
-                  {/* Password Field */}
-                  <div className="mt-4 relative">
-                    <div className="flex items-center justify-between">
+                return (
+                  <Form className="mt-6">
+                    {/* Email Field */}
+                    <div>
                       <label
-                        htmlFor="password"
+                        htmlFor="email"
                         className="block text-sm text-gray-200"
                       >
-                        Password
+                        Email
                       </label>
-                      <Link
-                        to="/forgot-password"
-                        className="text-xs text-gray-400 hover:underline"
-                      >
-                        Forgot Password?
-                      </Link>
+                      <Field
+                        type="email"
+                        name="email"
+                        id="email"
+                        autoComplete="email"
+                        disabled={isLoading.login || isSubmitting}
+                        className={cn(
+                          field_clName.primary,
+                          errors.email && touched.email
+                            ? field_clName.error
+                            : field_clName.info
+                        )}
+                      />
+                      <FieldEorrorMessage name="email" />
                     </div>
-                    <Field
-                      type={isShowPass ? "text" : "password"}
-                      name="password"
-                      id="password"
-                      autoComplete="current-password"
-                      className={cn(
-                        field_clName.primary,
-                        errors.password && touched.password
-                          ? field_clName.error
-                          : field_clName.info
-                      )}
-                    />
-                    <FieldEorrorMessage name="password" />
 
-                    <button
-                      type="button"
-                      onClick={() => setIsShowPass((prev) => !prev)}
-                      className="absolute text-gray-400 hover:text-gray-300 right-3 top-10 transition-colors duration-300"
-                    >
-                      {isShowPass ? <FiEyeOff /> : <FiEye />}
-                    </button>
-                  </div>
+                    {/* Password Field */}
+                    <div className="mt-4 relative">
+                      <div className="flex items-center justify-between">
+                        <label
+                          htmlFor="password"
+                          className="block text-sm text-gray-200"
+                        >
+                          Password
+                        </label>
+                        <Link
+                          to="/forgot-password"
+                          className="text-xs text-gray-400 hover:underline"
+                        >
+                          Forgot Password?
+                        </Link>
+                      </div>
+                      <Field
+                        type={isShowPass ? "text" : "password"}
+                        name="password"
+                        id="password"
+                        autoComplete="current-password"
+                        disabled={isLoading.login || isSubmitting}
+                        className={cn(
+                          field_clName.primary,
+                          errors.password && touched.password
+                            ? field_clName.error
+                            : field_clName.info
+                        )}
+                      />
+                      <FieldEorrorMessage name="password" />
 
-                  {/* Sign In Button */}
-                  <div className="mt-6">
-                    <button
-                      type="submit"
-                      disabled={isSubmitting || isLoading.login}
-                      className="w-full px-6 py-2.5 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 bg-blue-600 rounded-lg hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50"
-                    >
-                      {isSubmitting || isLoading.login
-                        ? "Signing In..."
-                        : "Sign In"}
-                    </button>
-                  </div>
-                </Form>
-              )}
+                      <button
+                        type="button"
+                        onClick={() => setIsShowPass((prev) => !prev)}
+                        className="absolute text-gray-400 hover:text-gray-300 right-3 top-10 transition-colors duration-300"
+                      >
+                        {isShowPass ? <FiEyeOff /> : <FiEye />}
+                      </button>
+                    </div>
+
+                    {/* Sign In Button */}
+                    <div className="mt-6">
+                      <SubmitButton isLoading={isLoading.login || isSubmitting}>
+                        Sign In
+                      </SubmitButton>
+                    </div>
+                  </Form>
+                );
+              }}
             </Formik>
 
             {/* Divider */}

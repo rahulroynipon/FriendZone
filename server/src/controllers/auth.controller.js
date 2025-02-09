@@ -60,10 +60,17 @@ const loginHandler = asyncHandler(async (req, res) => {
     throw new ApiError(404, "User not found");
   }
 
+  if (!user.password) {
+    throw new ApiError(
+      401,
+      "This account is not registered with password. Please use another login method"
+    );
+  }
+
   const isPasswordMatch = await user.isPasswordCorrect(password);
   console.log(isPasswordMatch);
   if (!isPasswordMatch) {
-    throw new ApiError("Invalid Password");
+    throw new ApiError(401, "Invalid Password");
   }
 
   const token = generateToken(user._id);
@@ -109,26 +116,27 @@ const signupHandler = asyncHandler(async (req, res) => {
     }
 
     otpDoc = await Otp.create({
-      type: "email-verification",
       userId: newUser._id,
       otp,
       expiresAt: new Date(Date.now() + 5 * 60 * 1000),
     });
   } else {
     newUser.password = password;
+    newUser.fullname = fullname;
     await newUser.save();
 
-    otpDoc = await Otp.findOneAndUpdate(
-      {
-        type: "email-verification",
-        userId: existingUser._id,
-      },
-      {
+    otpDoc = await Otp.findOne({ userId: newUser._id });
+    if (otpDoc) {
+      otpDoc.otp = otp;
+      otpDoc.expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+      await otpDoc.save();
+    } else {
+      otpDoc = await Otp.create({
+        userId: newUser._id,
         otp,
         expiresAt: new Date(Date.now() + 5 * 60 * 1000),
-      },
-      { new: true, upsert: true }
-    );
+      });
+    }
   }
 
   if (!otpDoc) {
@@ -139,7 +147,7 @@ const signupHandler = asyncHandler(async (req, res) => {
 
   const otpToken = {
     _id: otpDoc._id,
-    type: "email-verification",
+    expiresAt: otpDoc.expiresAt,
   };
 
   res
@@ -147,7 +155,7 @@ const signupHandler = asyncHandler(async (req, res) => {
     .json(
       new ApiResponse(
         200,
-        { otpToken },
+        otpToken,
         "Please check your email for the OTP verification code."
       )
     );
@@ -203,15 +211,7 @@ const userValidation = asyncHandler(async (req, res) => {
 });
 
 const resendValidation = asyncHandler(async (req, res) => {
-  const { type } = req.params;
   const { registerToken } = req.body;
-
-  if (!["email-verification", "forgot-password"].includes(type)) {
-    throw new ApiError(
-      400,
-      "Invalid request type. Please provide a valid type."
-    );
-  }
 
   if (!registerToken || !registerToken._id) {
     throw new ApiError(400, "Invalid request. Please provide a valid token.");
@@ -235,37 +235,24 @@ const resendValidation = asyncHandler(async (req, res) => {
     throw new ApiError(500, "User email not found. Please try again.");
   }
 
-  let emailSubject = "";
-  let emailMessage = "";
-
-  if (type === "email-verification") {
-    emailSubject = "Email Verification - New OTP Code";
-    emailMessage = `Your OTP verification code for email verification is ${otp}. This code is valid for 5 minutes.`;
-  } else if (type === "forgot-password") {
-    emailSubject = "Password Reset Request - New OTP Code";
-    emailMessage = `You requested a password reset. Your OTP verification code is ${otp}. This code is valid for 5 minutes.`;
-  }
-
-  const emailSent = await SentMail(
+  SentMail(
     otpToken.userId.email,
-    emailSubject,
-    emailMessage
+    "Email Verification - New OTP Code",
+    `Your OTP verification code for email verification is ${otp}. This code is valid for 5 minutes.`
   );
 
-  if (!emailSent) {
-    throw new ApiError(500, "Failed to send OTP email. Please try again.");
-  }
+  const newToken = {
+    _id: otpToken._id,
+    expiresAt: otpToken.expiresAt,
+  };
 
   res
     .status(200)
     .json(
       new ApiResponse(
         200,
-        null,
-        `A new OTP has been sent to your email for ${type.replace(
-          "-",
-          " "
-        )}. Please check your inbox and spam folder.`
+        newToken,
+        `A new OTP has been sent to your email. Please check your inbox and spam folder.`
       )
     );
 });
@@ -287,7 +274,7 @@ const passwordValidation = asyncHandler(async (req, res) => {
   SentMail(
     email,
     "Password Reset",
-    `http://localhost:5173/reset-password?token=${token}`
+    `http://localhost:5173/reset-password/${token}`
   );
 
   res

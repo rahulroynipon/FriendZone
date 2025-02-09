@@ -37,7 +37,7 @@ router.post("/login", loginHandler);
 router.post("/register", signupHandler);
 router.post("/validate", userValidation);
 router.post("/reset-passsword-link", passwordValidation);
-router.post("/resend-otp/:type", resendValidation);
+router.post("/resend-otp", resendValidation);
 router.post("/reset-password", resetPasswordHandler);
 router.get("/me", verifyToken, getAuthHandler);
 
